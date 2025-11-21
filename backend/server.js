@@ -3,9 +3,14 @@ import session from "express-session";
 import dotenv from "dotenv";
 import { google } from "googleapis";
 import cors from "cors";
+import contactRoutes from "./routes/contactRoutes.js";
+import connectDB from "./config/db.js";
+import contactModel from "./models/contactModel.js";
 
 dotenv.config();
 const app = express();
+
+connectDB();
 
 app.use(
   cors({
@@ -16,6 +21,9 @@ app.use(
 
 app.use(express.json());
 
+
+//google api middlewares
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -24,7 +32,6 @@ app.use(
   })
 );
 
-// OAuth2 Client
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
@@ -37,7 +44,6 @@ const SCOPES = [
   "openid",
 ];
 
-// 1) Redirect user to Google login
 app.get("/auth/google", (req, res) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
@@ -48,7 +54,6 @@ app.get("/auth/google", (req, res) => {
   res.redirect(url);
 });
 
-// 2) Google redirects back here with a "code"
 app.get("/auth/google/callback", async (req, res) => {
   const code = req.query.code;
 
@@ -56,7 +61,6 @@ app.get("/auth/google/callback", async (req, res) => {
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
 
-    // Save tokens in session (or DB)
     req.session.tokens = tokens;
 
     res.redirect(process.env.FRONTEND_URL + "/");
@@ -66,7 +70,6 @@ app.get("/auth/google/callback", async (req, res) => {
   }
 });
 
-// 3) Protected route: Get user's Google Contacts
 app.get("/api/contacts", async (req, res) => {
   if (!req.session.tokens)
     return res.status(401).json({ error: "User not authenticated" });
@@ -83,11 +86,17 @@ app.get("/api/contacts", async (req, res) => {
     });
 
     res.json(response.data.connections || []);
+    await contactModel.insertOne(response.data.connections);
+    console.log("data inserted");
   } catch (err) {
     console.error(err);
     res.status(500).send("Error fetching contacts");
   }
 });
+
+//middlewares routes
+
+app.use("/contacts",contactRoutes);
 
 app.listen(5000, () =>
   console.log("🚀 Backend running on http://localhost:5000")
