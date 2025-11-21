@@ -41,6 +41,7 @@ const oauth2Client = new google.auth.OAuth2(
 const SCOPES = [
   "https://www.googleapis.com/auth/contacts.readonly",
   "https://www.googleapis.com/auth/userinfo.profile",
+  "https://www.googleapis.com/auth/userinfo.email",
   "openid",
 ];
 
@@ -50,15 +51,15 @@ app.get("/auth/google", (req, res) => {
     prompt: "consent",
     scope: SCOPES,
   });
-
   res.redirect(url);
 });
 
 app.get("/auth/google/callback", async (req, res) => {
   const code = req.query.code;
-
+  console.log("code: ",code);
   try {
     const { tokens } = await oauth2Client.getToken(code);
+    console.log("tokens: ",tokens);
     oauth2Client.setCredentials(tokens);
 
     req.session.tokens = tokens;
@@ -73,6 +74,7 @@ app.get("/auth/google/callback", async (req, res) => {
 app.get("/api/contacts", async (req, res) => {
   if (!req.session.tokens)
     return res.status(401).json({ error: "User not authenticated" });
+  console.log("Scopes in token:", oauth2Client.credentials.scope);
 
   oauth2Client.setCredentials(req.session.tokens);
 
@@ -99,5 +101,5 @@ app.get("/api/contacts", async (req, res) => {
 app.use("/contacts",contactRoutes);
 
 app.listen(5000, () =>
-  console.log("🚀 Backend running on http://localhost:5000")
+  console.log("Backend running on http://localhost:5000")
 );
