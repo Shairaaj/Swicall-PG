@@ -1,0 +1,102 @@
+/* src/Components/LandingPage/LandingPage.css */
+
+.landing-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fb;
+  padding: 20px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.landing-card {
+  max-width: 700px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+  padding: 32px 40px 36px;
+  text-align: center;
+}
+
+.landing-title {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.landing-subtitle {
+  font-size: 0.98rem;
+  color: #4b5563;
+  margin-bottom: 20px;
+}
+
+.landing-section-title {
+  margin-top: 18px;
+  margin-bottom: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.landing-text {
+  font-size: 0.94rem;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.landing-getstarted {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.landing-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  border: none;
+  outline: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease,
+    background-color 0.1s ease;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.btn-secondary:hover {
+  background: #d1d5db;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .landing-card {
+    padding: 24px 20px 28px;
+  }
+}
