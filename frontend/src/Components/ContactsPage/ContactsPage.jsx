@@ -102,6 +102,11 @@ const ContactsPage = () => {
       alert("Phone number is required");
       return;
     }
+    let regex=/^[6789]{1}[0-9]{9}$/
+    if(!regex.test(newPhone)){
+      alert("Enter a valid Phone number");
+      return;
+    }
     try {
       const res = await axios.post(
         `${api}/api/contacts`,
@@ -223,13 +228,14 @@ const ContactsPage = () => {
         {showAdd && isPrimaryDevice && (
           <div className="cp-add-form">
             <input
-              placeholder="Name (optional)"
-              value={newName}
+              placeholder="Name"
+              value={newName} required pattern="^[6789][0-9]{9}$"
               onChange={(e) => setNewName(e.target.value)}
             />
             <input
               placeholder="Phone number"
               value={newPhone}
+
               onChange={(e) => setNewPhone(e.target.value)}
             />
             <button className="cp-small-btn" onClick={submitAdd}>
