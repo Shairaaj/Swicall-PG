@@ -211,10 +211,6 @@ const ContactsPage = () => {
             </button>
           )}
 
-          <button className="btn-secondary" onClick={loadContacts}>
-            Reload contacts
-          </button>
-
           <input
             className="cp-search"
             placeholder="Search by name..."
