@@ -6,13 +6,14 @@ import { verifyJWT } from "../middleware/authMiddleware.js";
 import { requirePrimaryDevice } from "../middleware/deviceMiddleware.js";
 
 const router = express.Router();
+const AES_SECRET_VALUE = process.env.AES_SECRET || "your_32_character_secret";
 
 const encrypt = (text) =>
-  CryptoJS.AES.encrypt(text, process.env.AES_SECRET).toString();
+  CryptoJS.AES.encrypt(text, AES_SECRET_VALUE).toString();
 
 const decrypt = (cipher) => {
   try {
-    const bytes = CryptoJS.AES.decrypt(cipher, process.env.AES_SECRET);
+    const bytes = CryptoJS.AES.decrypt(cipher, AES_SECRET_VALUE);
     return bytes.toString(CryptoJS.enc.Utf8);
   } catch {
     return "";
@@ -85,7 +86,7 @@ router.put("/:id", verifyJWT, requirePrimaryDevice, async (req, res) => {
     const doc = await Contact.findOneAndUpdate(
       { _id: req.params.id, user: req.user._id },
       update,
-      { new: true }
+      { new: true },
     );
 
     if (!doc) {
