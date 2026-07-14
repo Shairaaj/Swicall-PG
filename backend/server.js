@@ -17,8 +17,10 @@ import Contact from "./models/Contact.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
-const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://swicall-pg.vercel.app";
+const BACKEND_URL =
+  process.env.BACKEND_URL || "https://swicall-pg.onrender.com";
 const GOOGLE_REDIRECT_URI =
   process.env.GOOGLE_REDIRECT_URI || `${BACKEND_URL}/auth/google/callback`;
 const SESSION_SECRET = process.env.SESSION_SECRET || "swicall-session-secret";
@@ -26,13 +28,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_super_secret";
 const AES_SECRET_VALUE = process.env.AES_SECRET || "your_32_character_secret";
 
 const app = express();
-connectDB();
 
 app.use(express.json());
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
 // ---------- CORS ----------
 app.use(
   cors({
@@ -58,6 +55,23 @@ app.use(
 // ---------- API Routes ----------
 app.use("/api/auth", authRoutes);
 app.use("/api/contacts", contactRoutes);
+
+const cleanupContactIndexes = async () => {
+  try {
+    const indexes = await Contact.collection.indexes();
+    const legacyNameIndex = indexes.find(
+      (index) => index.name === "name_1" && index.unique,
+    );
+    if (legacyNameIndex) {
+      await Contact.collection.dropIndex("name_1");
+      console.log("Dropped legacy unique index on Contact.name");
+    }
+  } catch (err) {
+    if (err.codeName !== "IndexNotFound") {
+      console.error("Contact index cleanup failed:", err.message || err);
+    }
+  }
+};
 
 // ---------- Google OAuth setup ----------
 const oauth2Client = new google.auth.OAuth2(
@@ -214,6 +228,15 @@ app.get("/auth/google/callback", async (req, res) => {
 });
 
 // ---------- Start server ----------
-app.listen(PORT, () =>
-  console.log(`Backend running on http://localhost:${PORT}`),
-);
+const startServer = async () => {
+  await connectDB();
+  await cleanupContactIndexes();
+  app.listen(PORT, () =>
+    console.log(`Backend running on http://localhost:${PORT}`),
+  );
+};
+
+startServer().catch((err) => {
+  console.error("Server startup failed:", err);
+  process.exit(1);
+});
